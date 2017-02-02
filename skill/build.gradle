@@ -1,0 +1,51 @@
+group 'com.mapbox.alexa'
+version '0.1'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+    maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+dependencies {
+    // AWS Lambda
+    compile ('com.amazonaws:aws-lambda-java-core:1.1.0')
+    compile ('com.amazonaws:aws-lambda-java-events:1.1.0')
+    compile ('com.amazonaws:aws-lambda-java-log4j:1.0.0')
+
+    // Alexa skills kit
+    compile ('com.amazon.alexa:alexa-skills-kit:1.2')
+
+    // Logging
+    compile 'log4j:log4j:1.2.17'
+    compile 'org.slf4j:slf4j-api:1.7.0'
+    compile 'org.slf4j:slf4j-log4j12:1.7.0'
+
+    // MAS
+    compile ('com.mapbox.mapboxsdk:mapbox-java-services:2.0.0-SNAPSHOT@jar') {
+        transitive=true
+    }
+
+    // RSS reader
+    compile ('com.rometools:rome:1.7.0')
+    compile ('joda-time:joda-time:2.9.6')
+
+    // S3
+    compile 'com.amazonaws:aws-java-sdk-s3:1.11.86'
+
+    // Testing
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtime
+    }
+}
+
+build.dependsOn buildZip

@@ -1,0 +1,34 @@
+HelloIntent hey
+HelloIntent hey mapbox
+HelloIntent hello
+HelloIntent hello mapbox
+HelloIntent hi
+HelloIntent hi mapbox
+HelloIntent how are you
+HelloIntent how are you mapbox
+
+HomeAddressIntent my address is {PostalAddress}
+HomeAddressIntent my home address is {PostalAddress}
+HomeAddressIntent i live at {PostalAddress}
+
+OfficeAddressIntent my office address is {PostalAddress}
+OfficeAddressIntent my office is at {PostalAddress}
+OfficeAddressIntent i work at {PostalAddress}
+
+CommuteIntent how long is my commute
+CommuteIntent how is the traffic today
+CommuteIntent how is driving to work
+
+DirectionsIntent how far is {PostalAddress}
+DirectionsIntent how do i get to {PostalAddress}
+DirectionsIntent directions to {PostalAddress}
+
+PlacesIntent what's interesting nearby
+PlacesIntent what's popular nearby
+PlacesIntent what's interesting around me
+PlacesIntent what's popular around me
+
+BlogIntent what's up
+BlogIntent what's new
+BlogIntent what's new with you
+BlogIntent what's new with mapbox

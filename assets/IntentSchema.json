@@ -1,0 +1,46 @@
+{
+    "intents": [
+        {
+            "intent": "HelloIntent"
+        },
+        {
+            "intent": "HomeAddressIntent",
+            "slots": [
+                {
+                    "name": "PostalAddress",
+                    "type": "AMAZON.PostalAddress"
+                }
+            ]
+        },
+        {
+            "intent": "OfficeAddressIntent",
+            "slots": [
+                {
+                    "name": "PostalAddress",
+                    "type": "AMAZON.PostalAddress"
+                }
+            ]
+        },
+        {
+            "intent": "CommuteIntent"
+        },
+        {
+            "intent": "DirectionsIntent",
+            "slots": [
+                {
+                    "name": "PostalAddress",
+                    "type": "AMAZON.PostalAddress"
+                }
+            ]
+        },
+        {
+            "intent": "PlacesIntent"
+        },
+        {
+            "intent": "BlogIntent"
+        },
+        {
+            "intent": "AMAZON.HelpIntent"
+        }
+    ]
+}
