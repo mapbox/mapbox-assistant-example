@@ -19,16 +19,24 @@ public class AddressUtils {
 
     private static final Logger log = LoggerFactory.getLogger(AddressUtils.class);
 
+    private static String getSafeValue(Slot slot) {
+        try {
+            return slot.getValue();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static String getAddressFromSlot(Slot postalAddress, Slot city, Slot landmark) {
-        String landmarkValue = landmark.getValue();
+        String landmarkValue = getSafeValue(landmark);
         if (!TextUtils.isEmpty(landmarkValue)) {
             return landmarkValue;
         }
 
-        String addressValue = postalAddress.getValue();
-        String cityValue = city.getValue();
+        String addressValue = getSafeValue(postalAddress);
+        String cityValue = getSafeValue(city);
         if (!TextUtils.isEmpty(addressValue) && !TextUtils.isEmpty(cityValue)) {
-            return String.format(Locale.US, "%s,%s", addressValue, cityValue);
+            return String.format(Locale.US, "%s, %s", addressValue, cityValue);
         } else if (!TextUtils.isEmpty(addressValue)) {
             return addressValue;
         } else {
@@ -38,11 +46,11 @@ public class AddressUtils {
 
     public static Position getCoordinatesFromAddress(String address, Position proximity) {
         try {
+            log.info(String.format("Looking for '%s'.", address));
             MapboxGeocoding.Builder builder = new MapboxGeocoding.Builder()
                     .setAccessToken(Constants.MAPBOX_ACCESS_TOKEN)
                     .setMode(GeocodingCriteria.MODE_PLACES)
                     .setCountry("US")
-                    .setGeocodingType(GeocodingCriteria.TYPE_ADDRESS)
                     .setLimit(1)
                     .setLocation(address);
 
@@ -53,7 +61,7 @@ public class AddressUtils {
 
             Response<GeocodingResponse> response = builder.build().executeCall();
             double[] coordinates = response.body().getFeatures().get(0).getCenter();
-            log.info(String.format("Address '%s' is at %f, %f", address, coordinates[0], coordinates[1]));
+            log.info(String.format("Found at '%f,%f'.", coordinates[0], coordinates[1]));
             return Position.fromCoordinates(coordinates);
         } catch (Exception e) {
             log.error("Geocoding failed.", e);

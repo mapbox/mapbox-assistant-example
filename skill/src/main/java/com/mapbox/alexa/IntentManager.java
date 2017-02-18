@@ -88,20 +88,24 @@ public class IntentManager {
 
     public SpeechletResponse getHomeAddressResponse(Slot postalAddress, Slot city) {
         String speechText;
+        String cardText;
+
+        String address = AddressUtils.getAddressFromSlot(postalAddress, city, null);
 
         try {
-            String address = AddressUtils.getAddressFromSlot(postalAddress, city, null);
             Position position = AddressUtils.getCoordinatesFromAddress(address, null);
             storageManager.setHomeAddress(position);
             speechText = "Thank you, home address set.";
+            cardText = String.format(Locale.US, "Thank you, home address set: %s", address);
         } catch (Exception e) {
             speechText = "Sorry, I couldn't find that address.";
+            cardText = String.format(Locale.US, "Sorry, I couldn't find that address: %s", address);
         }
 
         // Create the simple card content
         SimpleCard card = new SimpleCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(speechText);
+        card.setContent(cardText);
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -112,21 +116,25 @@ public class IntentManager {
 
     public SpeechletResponse getOfficeAddressResponse(Slot postalAddress, Slot city) {
         String speechText;
+        String cardText;
+
+        String address = AddressUtils.getAddressFromSlot(postalAddress, city, null);
 
         try {
             Position proximity = storageManager.getHomeAddress();
-            String address = AddressUtils.getAddressFromSlot(postalAddress, city, null);
             Position position = AddressUtils.getCoordinatesFromAddress(address, proximity);
             storageManager.setOfficeAddress(position);
+            cardText = String.format(Locale.US, "Thank you, office address set: %s", address);
             speechText = "Thank you, office address set.";
         } catch (Exception e) {
+            cardText = String.format(Locale.US, "Sorry, I couldn't find that address: %s", address);
             speechText = "Sorry, I couldn't find that address.";
         }
 
         // Create the simple card content
         SimpleCard card = new SimpleCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(speechText);
+        card.setContent(cardText);
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
