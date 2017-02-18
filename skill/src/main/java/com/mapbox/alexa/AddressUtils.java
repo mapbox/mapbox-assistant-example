@@ -20,17 +20,22 @@ public class AddressUtils {
         return slot.getValue();
     }
 
-    public static Position getCoordinatesFromAddress(String address) {
+    public static Position getCoordinatesFromAddress(String address, Position proximity) {
         try {
-            MapboxGeocoding client = new MapboxGeocoding.Builder()
+            MapboxGeocoding.Builder builder = new MapboxGeocoding.Builder()
                     .setAccessToken(Constants.MAPBOX_ACCESS_TOKEN)
                     .setMode(GeocodingCriteria.MODE_PLACES)
                     .setCountry("US")
                     .setGeocodingType(GeocodingCriteria.TYPE_ADDRESS)
                     .setLimit(1)
-                    .setLocation(address)
-                    .build();
-            Response<GeocodingResponse> response = client.executeCall();
+                    .setLocation(address);
+
+            if (proximity != null) {
+                // Add support for bias
+                builder.setProximity(proximity);
+            }
+
+            Response<GeocodingResponse> response = builder.build().executeCall();
             double[] coordinates = response.body().getFeatures().get(0).getCenter();
             log.info(String.format("Address '%s' is at %f, %f", address, coordinates[0], coordinates[1]));
             return Position.fromCoordinates(coordinates);
