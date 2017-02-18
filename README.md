@@ -2,6 +2,8 @@
 
 A skill for Amazon Echo to interact with Mapbox services.
 
+[![image](https://cloud.githubusercontent.com/assets/6964/22553109/896dcce6-e929-11e6-9b12-def4f5343395.png)](https://www.youtube.com/watch?v=dljDVTtMDTo)
+
 ### Examples
 
 Set your home address:
@@ -27,7 +29,7 @@ Use the Directions API:
 Use the Geocoding API:
 
 * You: `Alexa, ask Mapbox what's popular nearby.`
-* Alexa: `Have you tried Dupont Circle Fountain, Washington, District of Columbia 20036, United States?"`
+* Alexa: `Have you tried Dupont Circle Fountain, Washington, District of Columbia 20036, United States?`
 
 Read the latest post on the blog:
 
@@ -37,6 +39,7 @@ Read the latest post on the blog:
 ### Dependencies
 
 * [Mapbox Android Services](http://www.github.com/mapbox/mapbox-java).
+* The skill runs on AWS Lambda, session state (user home/work addresses) is stored on AWS S3.
 
 ### Deploy to AWS Lambda
 
