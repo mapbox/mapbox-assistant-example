@@ -42,6 +42,10 @@
                 {
                     "name": "City",
                     "type": "AMAZON.US_CITY"
+                },
+                {
+                    "name": "Landmark",
+                    "type": "AMAZON.LandmarksOrHistoricalBuildings"
                 }
             ]
         },

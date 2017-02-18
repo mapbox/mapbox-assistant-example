@@ -34,12 +34,15 @@ CommuteIntent how is driving to work
 DirectionsIntent how far is {PostalAddress}
 DirectionsIntent how far is {PostalAddress} in {City}
 DirectionsIntent how far is {City}
+DirectionsIntent how far is {Landmark}
 DirectionsIntent how do i get to {PostalAddress}
 DirectionsIntent how do i get to {PostalAddress} in {City}
 DirectionsIntent how do i get to {City}
+DirectionsIntent how do i get to {Landmark}
 DirectionsIntent directions to {PostalAddress}
 DirectionsIntent directions to {PostalAddress} in {City}
 DirectionsIntent directions to {City}
+DirectionsIntent directions to {Landmark}
 
 PlacesIntent what's interesting nearby
 PlacesIntent what's popular nearby

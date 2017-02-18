@@ -19,7 +19,12 @@ public class AddressUtils {
 
     private static final Logger log = LoggerFactory.getLogger(AddressUtils.class);
 
-    public static String getAddressFromSlot(Slot postalAddress, Slot city) {
+    public static String getAddressFromSlot(Slot postalAddress, Slot city, Slot landmark) {
+        String landmarkValue = landmark.getValue();
+        if (!TextUtils.isEmpty(landmarkValue)) {
+            return landmarkValue;
+        }
+
         String addressValue = postalAddress.getValue();
         String cityValue = city.getValue();
         if (!TextUtils.isEmpty(addressValue) && !TextUtils.isEmpty(cityValue)) {

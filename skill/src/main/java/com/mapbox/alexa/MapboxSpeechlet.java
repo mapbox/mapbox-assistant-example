@@ -44,7 +44,8 @@ public class MapboxSpeechlet implements Speechlet {
             return intentManager.getCommuteResponse();
         } else if (Constants.INTENT_DIRECTIONS.equals(intentName)) {
             return intentManager.getDirectionsResponse(
-                    intent.getSlot("PostalAddress"), intent.getSlot("City"));
+                    intent.getSlot("PostalAddress"), intent.getSlot("City"),
+                    intent.getSlot("Landmark"));
         } else if (Constants.INTENT_PLACES.equals(intentName)) {
             return intentManager.getPlacesResponse();
         } else if (Constants.INTENT_BLOG.equals(intentName)) {

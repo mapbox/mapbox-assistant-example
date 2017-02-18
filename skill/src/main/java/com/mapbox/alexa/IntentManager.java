@@ -90,7 +90,7 @@ public class IntentManager {
         String speechText;
 
         try {
-            String address = AddressUtils.getAddressFromSlot(postalAddress, city);
+            String address = AddressUtils.getAddressFromSlot(postalAddress, city, null);
             Position position = AddressUtils.getCoordinatesFromAddress(address, null);
             storageManager.setHomeAddress(position);
             speechText = "Thank you, home address set.";
@@ -115,7 +115,7 @@ public class IntentManager {
 
         try {
             Position proximity = storageManager.getHomeAddress();
-            String address = AddressUtils.getAddressFromSlot(postalAddress, city);
+            String address = AddressUtils.getAddressFromSlot(postalAddress, city, null);
             Position position = AddressUtils.getCoordinatesFromAddress(address, proximity);
             storageManager.setOfficeAddress(position);
             speechText = "Thank you, office address set.";
@@ -182,7 +182,7 @@ public class IntentManager {
         return SpeechletResponse.newTellResponse(speech, card);
     }
 
-    public SpeechletResponse getDirectionsResponse(Slot postalAddress, Slot city) {
+    public SpeechletResponse getDirectionsResponse(Slot postalAddress, Slot city, Slot landmark) {
         String speechText;
 
         Position origin = storageManager.getHomeAddress();
@@ -191,7 +191,7 @@ public class IntentManager {
         } else {
             try {
                 Position proximity = storageManager.getHomeAddress();
-                String address = AddressUtils.getAddressFromSlot(postalAddress, city);
+                String address = AddressUtils.getAddressFromSlot(postalAddress, city, landmark);
                 Position position = AddressUtils.getCoordinatesFromAddress(address, proximity);
                 MapboxDirections client = new MapboxDirections.Builder()
                         .setAccessToken(Constants.MAPBOX_ACCESS_TOKEN)
