@@ -5,9 +5,12 @@ import com.mapbox.services.api.geocoding.v5.GeocodingCriteria;
 import com.mapbox.services.api.geocoding.v5.MapboxGeocoding;
 import com.mapbox.services.api.geocoding.v5.models.GeocodingResponse;
 import com.mapbox.services.commons.models.Position;
+import com.mapbox.services.commons.utils.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Response;
+
+import java.util.Locale;
 
 /**
  * Created by antonio on 2/1/17.
@@ -16,8 +19,16 @@ public class AddressUtils {
 
     private static final Logger log = LoggerFactory.getLogger(AddressUtils.class);
 
-    public static String getAddressFromSlot(Slot slot) {
-        return slot.getValue();
+    public static String getAddressFromSlot(Slot postalAddress, Slot city) {
+        String addressValue = postalAddress.getValue();
+        String cityValue = city.getValue();
+        if (!TextUtils.isEmpty(addressValue) && !TextUtils.isEmpty(cityValue)) {
+            return String.format(Locale.US, "%s,%s", addressValue, cityValue);
+        } else if (!TextUtils.isEmpty(addressValue)) {
+            return addressValue;
+        } else {
+            return cityValue;
+        }
     }
 
     public static Position getCoordinatesFromAddress(String address, Position proximity) {

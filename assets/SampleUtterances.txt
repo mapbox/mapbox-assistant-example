@@ -8,20 +8,38 @@ HelloIntent how are you
 HelloIntent how are you mapbox
 
 HomeAddressIntent my address is {PostalAddress}
+HomeAddressIntent my address is {PostalAddress} in {City}
+HomeAddressIntent my address is {City}
 HomeAddressIntent my home address is {PostalAddress}
+HomeAddressIntent my home address is {PostalAddress} in {City}
+HomeAddressIntent my home address is {City}
 HomeAddressIntent i live at {PostalAddress}
+HomeAddressIntent i live at {PostalAddress} in {City}
+HomeAddressIntent i live in {City}
 
 OfficeAddressIntent my office address is {PostalAddress}
+OfficeAddressIntent my office address is {PostalAddress} in {City}
+OfficeAddressIntent my office address is {City}
 OfficeAddressIntent my office is at {PostalAddress}
+OfficeAddressIntent my office is at {PostalAddress} in {City}
+OfficeAddressIntent my office is in {City}
 OfficeAddressIntent i work at {PostalAddress}
+OfficeAddressIntent i work at {PostalAddress} in {City}
+OfficeAddressIntent i work in {City}
 
 CommuteIntent how long is my commute
 CommuteIntent how is the traffic today
 CommuteIntent how is driving to work
 
 DirectionsIntent how far is {PostalAddress}
+DirectionsIntent how far is {PostalAddress} in {City}
+DirectionsIntent how far is {City}
 DirectionsIntent how do i get to {PostalAddress}
+DirectionsIntent how do i get to {PostalAddress} in {City}
+DirectionsIntent how do i get to {City}
 DirectionsIntent directions to {PostalAddress}
+DirectionsIntent directions to {PostalAddress} in {City}
+DirectionsIntent directions to {City}
 
 PlacesIntent what's interesting nearby
 PlacesIntent what's popular nearby

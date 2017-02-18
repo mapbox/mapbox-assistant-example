@@ -9,6 +9,10 @@
                 {
                     "name": "PostalAddress",
                     "type": "AMAZON.PostalAddress"
+                },
+                {
+                    "name": "City",
+                    "type": "AMAZON.US_CITY"
                 }
             ]
         },
@@ -18,6 +22,10 @@
                 {
                     "name": "PostalAddress",
                     "type": "AMAZON.PostalAddress"
+                },
+                {
+                    "name": "City",
+                    "type": "AMAZON.US_CITY"
                 }
             ]
         },
@@ -30,6 +38,10 @@
                 {
                     "name": "PostalAddress",
                     "type": "AMAZON.PostalAddress"
+                },
+                {
+                    "name": "City",
+                    "type": "AMAZON.US_CITY"
                 }
             ]
         },

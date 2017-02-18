@@ -35,13 +35,16 @@ public class MapboxSpeechlet implements Speechlet {
         } else if (Constants.INTENT_HELLO.equals(intentName)) {
             return intentManager.getHelloResponse();
         } else if (Constants.INTENT_HOME_ADDRESS.equals(intentName)) {
-            return intentManager.getHomeAddressResponse(intent.getSlot("PostalAddress"));
+            return intentManager.getHomeAddressResponse(
+                    intent.getSlot("PostalAddress"), intent.getSlot("City"));
         } else if (Constants.INTENT_OFFICE_ADDRESS.equals(intentName)) {
-            return intentManager.getOfficeAddressResponse(intent.getSlot("PostalAddress"));
+            return intentManager.getOfficeAddressResponse(
+                    intent.getSlot("PostalAddress"), intent.getSlot("City"));
         } else if (Constants.INTENT_COMMUTE.equals(intentName)) {
             return intentManager.getCommuteResponse();
         } else if (Constants.INTENT_DIRECTIONS.equals(intentName)) {
-            return intentManager.getDirectionsResponse(intent.getSlot("PostalAddress"));
+            return intentManager.getDirectionsResponse(
+                    intent.getSlot("PostalAddress"), intent.getSlot("City"));
         } else if (Constants.INTENT_PLACES.equals(intentName)) {
             return intentManager.getPlacesResponse();
         } else if (Constants.INTENT_BLOG.equals(intentName)) {
