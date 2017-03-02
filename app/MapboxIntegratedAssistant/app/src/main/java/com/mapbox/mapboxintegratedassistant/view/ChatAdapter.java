@@ -24,17 +24,17 @@ public class ChatAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
         // Create the ViewHolder based on the viewType
-        // TODO - maybe a switch would be cleaner here
-        if (viewType == ChatObject.INPUT_OBJECT) {
-            View itemView = inflater.inflate(R.layout.user_input_layout, parent, false);
-            return new InputViewHolder(itemView);
-        } else if (viewType == ChatObject.RESPONSE_OBJECT){
-            View itemView = inflater.inflate(R.layout.chat_response_layout, parent, false);
-            return new ResponseViewHolder(itemView);
-        } else {
-            // No view type found - default to regular response
-            View itemView = inflater.inflate(R.layout.chat_response_layout, parent, false);
-            return new ResponseViewHolder(itemView);
+        View itemView;
+        switch (viewType) {
+            case ChatObject.INPUT_OBJECT:
+                itemView = inflater.inflate(R.layout.user_input_layout, parent, false);
+                return new InputViewHolder(itemView);
+            case ChatObject.RESPONSE_OBJECT:
+                itemView = inflater.inflate(R.layout.chat_response_layout, parent, false);
+                return new ResponseViewHolder(itemView);
+            default:
+                itemView = inflater.inflate(R.layout.chat_response_layout, parent, false);
+                return new ResponseViewHolder(itemView);
         }
     }
 

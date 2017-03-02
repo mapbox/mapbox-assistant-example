@@ -1,13 +1,9 @@
 package com.mapbox.mapboxintegratedassistant.model;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.google.gson.JsonElement;
+import com.mapbox.mapboxintegratedassistant.MiaConstants;
 import com.mapbox.mapboxintegratedassistant.MiaPresenter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import ai.api.AIDataService;
 import ai.api.AIServiceException;
@@ -17,8 +13,6 @@ import ai.api.model.Fulfillment;
 import ai.api.model.Result;
 
 public class ChatRequest extends AsyncTask<AIRequest, Void, AIResponse> {
-
-    private final String LOG_TAG = ChatRequest.class.getSimpleName();
 
     private AIDataService service;
     private MiaPresenter presenter;
@@ -34,7 +28,7 @@ public class ChatRequest extends AsyncTask<AIRequest, Void, AIResponse> {
         try {
             return service.request(request);
         } catch (AIServiceException e) {
-
+            e.printStackTrace();
         }
         return null;
     }
@@ -44,17 +38,17 @@ public class ChatRequest extends AsyncTask<AIRequest, Void, AIResponse> {
             final Result result = aiResponse.getResult();
             final Fulfillment fulfillment = result.getFulfillment();
 
-            // TODO - remove logs
-            final HashMap<String, JsonElement> params = result.getParameters();
-            if (params != null && !params.isEmpty()) {
-                Log.i(LOG_TAG, "Parameters: ");
-                for (final Map.Entry<String, JsonElement> entry : params.entrySet()) {
-                    Log.i(LOG_TAG, String.format("%s: %s", entry.getKey(), entry.getValue().toString()));
-                }
-            }
-
             // Use the display text for the response
             presenter.onQueryResponseReceived(fulfillment.getSpeech());
+
+            if (!result.isActionIncomplete()) {
+                // Completed an action - go through available actions to work with
+                switch (result.getAction()) {
+                    case MiaConstants.ACTION_SHOW_ROUTE_OD:
+                        presenter.drawRouteOriginDestination(result);
+                        break;
+                }
+            }
         }
     }
 }

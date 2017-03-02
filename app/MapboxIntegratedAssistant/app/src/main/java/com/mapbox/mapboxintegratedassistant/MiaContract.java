@@ -1,8 +1,12 @@
 package com.mapbox.mapboxintegratedassistant;
 
-import ai.api.AIDataService;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 
-public interface MiaContract {
+import ai.api.AIDataService;
+import ai.api.model.Result;
+
+interface MiaContract {
 
     interface View {
         /**
@@ -12,6 +16,16 @@ public interface MiaContract {
         void notifyAdapterItemInserted(int position);
 
         void hideSoftKeyboard();
+
+        void hideChatLayout();
+
+        /**
+         * Add a marker on the map given provided MarkerOptions
+         * @param markerOptions - MarkerOptions object from Mapbox SDK
+         */
+        void addMarkerToMap(MarkerOptions markerOptions);
+
+        void addPolylineToMap(PolylineOptions polylineOptions);
 
         /**
          * Will scroll chat to bottom if it currently is not
@@ -26,5 +40,9 @@ public interface MiaContract {
         void sendQueryRequest(AIDataService service, String queryText);
 
         void onQueryResponseReceived(String responseText);
+
+        void setMapPositionFromLocation(String location, String entity);
+
+        void drawRouteOriginDestination(Result result);
     }
 }

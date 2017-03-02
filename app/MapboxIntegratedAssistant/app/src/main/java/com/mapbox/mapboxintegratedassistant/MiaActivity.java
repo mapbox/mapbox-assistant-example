@@ -24,6 +24,8 @@ import com.mapbox.mapboxintegratedassistant.model.BotResponse;
 import com.mapbox.mapboxintegratedassistant.model.ChatObject;
 import com.mapbox.mapboxintegratedassistant.view.ChatAdapter;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -37,7 +39,9 @@ import ai.api.android.AIDataService;
 public class MiaActivity extends AppCompatActivity implements MiaContract.View {
 
     private static final int SPEECH_INPUT_CODE = 100;
+
     private MapView mapView;
+    private MapboxMap map;
 
     private MiaPresenter presenter;
     private ChatAdapter chatAdapter;
@@ -47,8 +51,6 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
     private RelativeLayout chatLayout;
     private RecyclerView chatList;
     private FloatingActionButton searchBtn;
-    private ImageView clearChatBtn;
-    private ImageView micBtn;
     private EditText searchBox;
 
     @Override
@@ -56,7 +58,7 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
         super.onCreate(savedInstanceState);
 
         // Set up Mapbox account
-        Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
+        Mapbox.getInstance(this, MiaConstants.MAPBOX_ACCESS_TOKEN);
         setContentView(R.layout.mia_layout);
 
         // Find the MapView and send a toast when it's ready
@@ -65,6 +67,7 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
+                map = mapboxMap;
                 showMapReadyToast();
             }
         });
@@ -94,15 +97,16 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
                 searchBtn.hide();
             }
         });
-        clearChatBtn = (ImageView) findViewById(R.id.iv_clear_chat);
+        ImageView clearChatBtn = (ImageView) findViewById(R.id.iv_clear_chat);
         clearChatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 chatLayout.setVisibility(View.GONE);
+                hideSoftKeyboard();
                 searchBtn.show();
             }
         });
-        micBtn = (ImageView) findViewById(R.id.iv_microphone);
+        ImageView micBtn = (ImageView) findViewById(R.id.iv_microphone);
         micBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,7 +118,7 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
     }
 
     private void setupAIConfiguration() {
-        final AIConfiguration aiConfig = new AIConfiguration(getString(R.string.ai_access_token),
+        final AIConfiguration aiConfig = new AIConfiguration(MiaConstants.APIAI_ACCESS_TOKEN,
                 AIConfiguration.SupportedLanguages.English,
                 AIConfiguration.RecognitionEngine.System);
         aiDataService = new AIDataService(this, aiConfig);
@@ -169,6 +173,12 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
         chatList.scrollToPosition(chatAdapter.getItemCount() - 1);
     }
 
+    @Override
+    public void hideChatLayout() {
+        chatLayout.setVisibility(View.GONE);
+        searchBtn.show();
+    }
+
     // Will fire after text is interpreted from the microphone
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -185,6 +195,16 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
                 break;
             }
         }
+    }
+
+    @Override
+    public void addMarkerToMap(MarkerOptions markerOptions) {
+        map.addMarker(markerOptions);
+    }
+
+    @Override
+    public void addPolylineToMap(PolylineOptions polylineOptions) {
+        map.addPolyline(polylineOptions);
     }
 
     @Override

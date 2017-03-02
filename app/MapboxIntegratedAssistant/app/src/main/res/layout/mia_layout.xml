@@ -11,7 +11,7 @@
         android:id="@+id/rl_chat_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"
+        android:visibility="gone"
         android:background="#8C000000"
         android:focusableInTouchMode="true"
         android:translationZ="1dp"
@@ -73,11 +73,11 @@
         android:id="@+id/mapview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        mapbox:mapbox_cameraTargetLat="37.1792"
-        mapbox:mapbox_cameraTargetLng="-3.5953"
+        mapbox:mapbox_cameraTargetLat="30.2672"
+        mapbox:mapbox_cameraTargetLng="-97.7431"
         mapbox:mapbox_styleUrl="@string/mapbox_style_mapbox_streets"
         mapbox:mapbox_cameraTilt="20"
-        mapbox:mapbox_cameraZoom="14"/>
+        mapbox:mapbox_cameraZoom="10"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/search_btn"
@@ -88,7 +88,7 @@
         android:layout_margin="16dp"
         android:backgroundTint="@color/botSecondary"
         android:src="@drawable/ic_search"
-        android:visibility="gone"
+        android:visibility="visible"
         android:tint="@color/fabIconColor"/>
 
 </RelativeLayout>
