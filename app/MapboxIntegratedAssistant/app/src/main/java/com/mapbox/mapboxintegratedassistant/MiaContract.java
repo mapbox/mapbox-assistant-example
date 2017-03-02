@@ -1,5 +1,6 @@
 package com.mapbox.mapboxintegratedassistant;
 
+import com.mapbox.mapboxintegratedassistant.model.ChatObject;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 
@@ -44,5 +45,7 @@ interface MiaContract {
         void setMapPositionFromLocation(String location, String entity);
 
         void drawRouteOriginDestination(Result result);
+
+        void addChatObject(ChatObject object);
     }
 }

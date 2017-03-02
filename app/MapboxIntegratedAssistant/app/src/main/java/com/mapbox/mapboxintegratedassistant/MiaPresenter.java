@@ -56,6 +56,14 @@ public class MiaPresenter implements MiaContract.Presenter {
         this.view = view;
     }
 
+    @Override
+    public void addChatObject(ChatObject object) {
+        chatObjects.add(object);
+        view.notifyAdapterItemInserted(chatObjects.size() - 1);
+        // Scroll down to bottom of list when new object is added
+        view.scrollChatDown();
+    }
+
     /**
      * Used to send requests to API.AI
      * Can come from either search box or microphone
@@ -66,11 +74,7 @@ public class MiaPresenter implements MiaContract.Presenter {
         // Add an input object to show the query in the chat
         InputObject input = new InputObject();
         input.setText(queryText);
-        chatObjects.add(input);
-        view.notifyAdapterItemInserted(chatObjects.size() - 1);
-
-        // Scroll down to bottom of list when new object is added
-        view.scrollChatDown();
+        addChatObject(input);
 
         // Send the request to API.AI here
         AIRequest request = new AIRequest();
@@ -88,9 +92,7 @@ public class MiaPresenter implements MiaContract.Presenter {
         // Add an response object to the chat
         BotResponse response = new BotResponse();
         response.setText(responseText);
-        chatObjects.add(response);
-        view.notifyAdapterItemInserted(chatObjects.size() - 1);
-        view.scrollChatDown();
+        addChatObject(response);
     }
 
     /**
@@ -156,6 +158,9 @@ public class MiaPresenter implements MiaContract.Presenter {
             });
         } catch (Exception e) {
             e.printStackTrace();
+            BotResponse response = new BotResponse();
+            response.setText("Sorry, I'm have trouble finding directions right now.");
+            addChatObject(response);
         }
     }
 
@@ -190,40 +195,47 @@ public class MiaPresenter implements MiaContract.Presenter {
     }
 
     private void getRoute(Position origin, Position destination) throws ServicesException {
+        try {
+            MapboxDirections client = new MapboxDirections.Builder()
+                    .setOrigin(origin)
+                    .setDestination(destination)
+                    .setProfile(DirectionsCriteria.PROFILE_DRIVING)
+                    .setAccessToken(MiaConstants.MAPBOX_ACCESS_TOKEN)
+                    .build();
 
-        MapboxDirections client = new MapboxDirections.Builder()
-                .setOrigin(origin)
-                .setDestination(destination)
-                .setProfile(DirectionsCriteria.PROFILE_DRIVING)
-                .setAccessToken(MiaConstants.MAPBOX_ACCESS_TOKEN)
-                .build();
+            client.enqueueCall(new Callback<DirectionsResponse>() {
+                @Override
+                public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                    // You can get the generic HTTP info about the response
+                    Log.d(LOG_TAG, "Response code: " + response.code());
+                    if (response.body() == null) {
+                        Log.e(LOG_TAG, "No routes found, make sure you set the right user and access token.");
+                        return;
+                    } else if (response.body().getRoutes().size() < 1) {
+                        Log.e(LOG_TAG, "No routes found");
+                        return;
+                    }
 
-        client.enqueueCall(new Callback<DirectionsResponse>() {
-            @Override
-            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-                // You can get the generic HTTP info about the response
-                Log.d(LOG_TAG, "Response code: " + response.code());
-                if (response.body() == null) {
-                    Log.e(LOG_TAG, "No routes found, make sure you set the right user and access token.");
-                    return;
-                } else if (response.body().getRoutes().size() < 1) {
-                    Log.e(LOG_TAG, "No routes found");
-                    return;
+                    // Print some info about the route
+                    currentRoute = response.body().getRoutes().get(0);
+                    Log.d(LOG_TAG, "Distance: " + currentRoute.getDistance());
+
+                    // Draw the route on the map
+                    drawRoute(currentRoute);
                 }
 
-                // Print some info about the route
-                currentRoute = response.body().getRoutes().get(0);
-                Log.d(LOG_TAG, "Distance: " + currentRoute.getDistance());
+                @Override
+                public void onFailure(Call<DirectionsResponse> call, Throwable throwable) {
+                    Log.e(LOG_TAG, "Error: " + throwable.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            BotResponse response = new BotResponse();
+            response.setText("Sorry, I'm have trouble finding directions right now.");
+            addChatObject(response);
+        }
 
-                // Draw the route on the map
-                drawRoute(currentRoute);
-            }
-
-            @Override
-            public void onFailure(Call<DirectionsResponse> call, Throwable throwable) {
-                Log.e(LOG_TAG, "Error: " + throwable.getMessage());
-            }
-        });
     }
 
     private void drawRoute(DirectionsRoute route) {
