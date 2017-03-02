@@ -11,7 +11,7 @@
         android:id="@+id/rl_chat_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
+        android:visibility="visible"
         android:background="#8C000000"
         android:focusableInTouchMode="true"
         android:translationZ="1dp"
@@ -57,6 +57,14 @@
                 android:backgroundTint="#00FFFFFF"
                 android:hint="@string/ask_a_question"/>
 
+            <ImageView
+                android:id="@+id/iv_microphone"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center_vertical|end"
+                android:padding="6dp"
+                android:src="@drawable/ic_microphone"/>
+
         </android.support.v7.widget.CardView>
 
     </RelativeLayout>
@@ -80,6 +88,7 @@
         android:layout_margin="16dp"
         android:backgroundTint="@color/botSecondary"
         android:src="@drawable/ic_search"
+        android:visibility="gone"
         android:tint="@color/fabIconColor"/>
 
 </RelativeLayout>

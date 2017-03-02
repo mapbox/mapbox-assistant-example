@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">MapboxIntegratedAssistant</string>
-    <string name="access_token">pk.eyJ1IjoiZGFuZXNmZWRlciIsImEiOiJjaXphcGQ3Z3UwOHZ0MzJwb29iYzFxOHN3In0.-bCoGo_p28frKqhjLL5ZuA</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiZGFuZXNmZWRlciIsImEiOiJjaXphcGQ3Z3UwOHZ0MzJwb29iYzFxOHN3In0.-bCoGo_p28frKqhjLL5ZuA</string>
+    <string name="ai_access_token">2e8d9825e5cd4c10be8c7f64abc3b61d</string>
     <string name="clear_chat_button">Clear chat button</string>
     <string name="ask_a_question">Ask a question</string>
     <string name="placeholder_response_text">Placeholder response text</string>
     <string name="placeholder_input_text">Placeholder input text</string>
+    <string name="speech_not_supported">I\'m sorry, speech is not supported.</string>
+    <string name="ask_me">Ask me something.</string>
+    <string name="mia_greeting">Hi, I\'m Mapbox\'s assistant! How can I help you?</string>
 </resources>

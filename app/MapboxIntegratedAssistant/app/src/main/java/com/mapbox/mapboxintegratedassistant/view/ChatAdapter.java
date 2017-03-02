@@ -1,14 +1,12 @@
-package com.mapbox.mapboxintegratedassistant;
+package com.mapbox.mapboxintegratedassistant.view;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mapbox.mapboxintegratedassistant.R;
 import com.mapbox.mapboxintegratedassistant.model.ChatObject;
-import com.mapbox.mapboxintegratedassistant.view.BaseViewHolder;
-import com.mapbox.mapboxintegratedassistant.view.InputViewHolder;
-import com.mapbox.mapboxintegratedassistant.view.ResponseViewHolder;
 
 import java.util.ArrayList;
 
@@ -26,6 +24,7 @@ public class ChatAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
         // Create the ViewHolder based on the viewType
+        // TODO - maybe a switch would be cleaner here
         if (viewType == ChatObject.INPUT_OBJECT) {
             View itemView = inflater.inflate(R.layout.user_input_layout, parent, false);
             return new InputViewHolder(itemView);
