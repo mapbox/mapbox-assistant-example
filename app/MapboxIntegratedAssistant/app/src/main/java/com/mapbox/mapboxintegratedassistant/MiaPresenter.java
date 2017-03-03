@@ -169,7 +169,6 @@ public class MiaPresenter implements MiaContract.Presenter {
      */
     @Override
     public void drawRouteOriginDestination(Result result) {
-        // TODO - Might be a better place to do this
         // Hide the chat layout - done talking to the bot at this point
         view.hideChatLayoutWithDelay(1500);
 
@@ -260,6 +259,8 @@ public class MiaPresenter implements MiaContract.Presenter {
 
     @Override
     public void showCurrentLocation() {
+        // Hide the chat layout
+        view.hideChatLayoutWithDelay(1500);
         view.showCurrentLocation();
     }
 }

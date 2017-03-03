@@ -5,8 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -32,23 +34,33 @@ import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.location.LocationSource;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.services.android.telemetry.location.LocationEngine;
+import com.mapbox.services.android.telemetry.location.LocationEngineListener;
+import com.mapbox.services.android.telemetry.permissions.PermissionsListener;
+import com.mapbox.services.android.telemetry.permissions.PermissionsManager;
 import com.mapbox.services.commons.models.Position;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import ai.api.android.AIConfiguration;
 import ai.api.android.AIDataService;
 
-public class MiaActivity extends AppCompatActivity implements MiaContract.View {
+public class MiaActivity extends AppCompatActivity implements MiaContract.View, PermissionsListener {
 
     private static final int SPEECH_INPUT_CODE = 100;
 
     private MapView mapView;
     private MapboxMap map;
+
+    private LocationEngine locationEngine;
+    private LocationEngineListener locationEngineListener;
+    private PermissionsManager permissionsManager;
 
     private MiaPresenter presenter;
     private ChatAdapter chatAdapter;
@@ -78,7 +90,9 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
             }
         });
 
-
+        // Get the location engine object for later use.
+        locationEngine = LocationSource.getLocationEngine(this);
+        locationEngine.activate();
 
         // Set up connection with API.AI
         setupAIConfiguration();
@@ -218,6 +232,7 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
         if (map.getAnnotations().size() > 0) {
             map.clear();
         }
+        map.setMyLocationEnabled(false);
     }
 
     @Override
@@ -229,30 +244,6 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
                 .build();
 
         map.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 200), 3500);
-    }
-
-    @Override
-    public void showCurrentLocation() {
-
-//        // If we have the last location of the user, we can move the camera to that position.
-//        Location lastLocation = locationServices.getLastLocation();
-//        if (lastLocation != null) {
-//            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastLocation), 16));
-//        }
-//
-//        locationServices.addLocationListener(new LocationListener() {
-//            @Override
-//            public void onLocationChanged(Location location) {
-//                if (location != null) {
-//                    // Move the map camera to where the user location is and then remove the
-//                    // listener so the camera isn't constantly updating when the user location
-//                    // changes. When the user disables and then enables the location again, this
-//                    // listener is registered again and will adjust the camera once again.
-//                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location), 16));
-//                    locationServices.removeLocationListener(this);
-//                }
-//            }
-//        });
     }
 
     private void beginListening() {
@@ -315,6 +306,79 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
     }
 
     @Override
+    public void showCurrentLocation() {
+        toggleGps(true);
+    }
+
+    private void toggleGps(boolean enableGps) {
+        if (enableGps) {
+            // Check if user has granted location permission
+            permissionsManager = new PermissionsManager(this);
+            if (!PermissionsManager.areLocationPermissionsGranted(this)) {
+                permissionsManager.requestLocationPermissions(this);
+            } else {
+                enableLocation(true);
+            }
+        } else {
+            enableLocation(false);
+        }
+    }
+
+    private void enableLocation(boolean enabled) {
+        if (enabled) {
+            // If we have the last location of the user, we can move the camera to that position.
+            Location lastLocation = locationEngine.getLastLocation();
+            if (lastLocation != null) {
+                map.easeCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastLocation), 16), 3500);
+            }
+
+            locationEngineListener = new LocationEngineListener() {
+                @Override
+                public void onConnected() {
+                    // No action needed here.
+                }
+
+                @Override
+                public void onLocationChanged(Location location) {
+                    if (location != null) {
+                        // Move the map camera to where the user location is and then remove the
+                        // listener so the camera isn't constantly updating when the user location
+                        // changes. When the user disables and then enables the location again, this
+                        // listener is registered again and will adjust the camera once again.
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location), 16));
+                        locationEngine.removeLocationEngineListener(this);
+                    }
+                }
+            };
+            locationEngine.addLocationEngineListener(locationEngineListener);
+        }
+        // Enable or disable the location layer on the map
+        map.setMyLocationEnabled(enabled);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onExplanationNeeded(List<String> permissionsToExplain) {
+        Toast.makeText(this, "This app needs location permissions in order to show its functionality.",
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onPermissionResult(boolean granted) {
+        if (granted) {
+            enableLocation(true);
+        } else {
+            Toast.makeText(this, "You didn't grant location permissions.",
+                    Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         mapView.onStart();
@@ -336,6 +400,11 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
     protected void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
+        // Ensure no memory leak occurs if we register the location listener but the call hasn't
+        // been made yet.
+        if (locationEngineListener != null) {
+            locationEngine.removeLocationEngineListener(locationEngineListener);
+        }
     }
 
     @Override
