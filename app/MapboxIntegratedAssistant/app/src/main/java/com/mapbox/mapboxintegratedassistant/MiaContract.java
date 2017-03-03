@@ -21,6 +21,8 @@ interface MiaContract {
 
         void hideChatLayout();
 
+        void hideChatLayoutWithDelay(int delayMs);
+
         /**
          * Add a marker on the map given provided MarkerOptions
          * @param markerOptions - MarkerOptions object from Mapbox SDK

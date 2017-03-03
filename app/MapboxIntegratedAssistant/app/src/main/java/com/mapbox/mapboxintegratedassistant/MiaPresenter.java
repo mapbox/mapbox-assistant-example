@@ -171,7 +171,7 @@ public class MiaPresenter implements MiaContract.Presenter {
     public void drawRouteOriginDestination(Result result) {
         // TODO - Might be a better place to do this
         // Hide the chat layout - done talking to the bot at this point
-        view.hideChatLayout();
+        view.hideChatLayoutWithDelay(1500);
 
         // Clear current route data / map annotations
         origin = null;

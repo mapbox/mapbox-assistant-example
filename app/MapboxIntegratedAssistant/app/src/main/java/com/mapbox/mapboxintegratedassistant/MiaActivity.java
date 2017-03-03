@@ -179,7 +179,7 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
         float initialRadius = (float) Math.hypot(cx, cy);
 
         // Create the animation (the final radius is zero)
-        final Animator anim =
+        Animator anim =
                 ViewAnimationUtils.createCircularReveal(chatLayout, cx, cy, initialRadius, 0);
 
         // Make the view invisible when the animation is done
@@ -194,16 +194,21 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
             }
         });
 
+        // Start the animation
+        anim.start();
+    }
+
+    @Override
+    public void hideChatLayoutWithDelay(final int delayMs) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 chatLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        // Start the animation
-                        anim.start();
+                        hideChatLayout();
                     }
-                }, 1500);
+                }, delayMs);
             }
         });
     }
