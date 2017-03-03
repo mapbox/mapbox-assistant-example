@@ -5,7 +5,7 @@ import android.view.View;
 
 import com.mapbox.mapboxintegratedassistant.model.ChatObject;
 
-public abstract class BaseViewHolder extends RecyclerView.ViewHolder {
+abstract class BaseViewHolder extends RecyclerView.ViewHolder {
 
     BaseViewHolder(View itemView) {
         super(itemView);

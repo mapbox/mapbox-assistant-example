@@ -6,11 +6,11 @@ import android.widget.TextView;
 import com.mapbox.mapboxintegratedassistant.R;
 import com.mapbox.mapboxintegratedassistant.model.ChatObject;
 
-public class InputViewHolder extends BaseViewHolder {
+class InputViewHolder extends BaseViewHolder {
 
     private TextView tvInputText;
 
-    public InputViewHolder(View itemView) {
+    InputViewHolder(View itemView) {
         super(itemView);
         this.tvInputText = (TextView) itemView.findViewById(R.id.tv_input_text);
     }

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +44,7 @@ import com.mapbox.services.android.telemetry.location.LocationEngineListener;
 import com.mapbox.services.android.telemetry.permissions.PermissionsListener;
 import com.mapbox.services.android.telemetry.permissions.PermissionsManager;
 import com.mapbox.services.commons.models.Position;
+import com.mapbox.services.commons.utils.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +66,7 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View, 
 
     private MiaPresenter presenter;
     private ChatAdapter chatAdapter;
+    private TextToSpeech tts;
 
     private AIDataService aiDataService;
 
@@ -93,6 +96,16 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View, 
         // Get the location engine object for later use.
         locationEngine = LocationSource.getLocationEngine(this);
         locationEngine.activate();
+
+        // Setting up TTS
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    tts.setLanguage(Locale.getDefault());
+                }
+            }
+        });
 
         // Set up connection with API.AI
         setupAIConfiguration();
@@ -155,9 +168,11 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View, 
         @Override
         public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                presenter.sendQueryRequest(aiDataService, textView.getText().toString());
-                searchBox.getText().clear();
-                return true;
+                if (!TextUtils.isEmpty(textView.getText())) {
+                    presenter.sendQueryRequest(aiDataService, textView.getText().toString());
+                    searchBox.getText().clear();
+                    return true;
+                }
             }
             return false;
         }
@@ -246,21 +261,6 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View, 
         map.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 200), 3500);
     }
 
-    private void beginListening() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.ask_me));
-        try {
-            startActivityForResult(intent, SPEECH_INPUT_CODE);
-        } catch (ActivityNotFoundException a) {
-            Toast.makeText(getApplicationContext(),
-                    R.string.speech_not_supported,
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
     @Override
     public void hideSoftKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -270,24 +270,6 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View, 
     @Override
     public void scrollChatDown() {
         chatList.scrollToPosition(chatAdapter.getItemCount() - 1);
-    }
-
-    // Will fire after text is interpreted from the microphone
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case SPEECH_INPUT_CODE: {
-                if (resultCode == RESULT_OK && null != data) {
-                    ArrayList<String> result = data
-                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    presenter.sendQueryRequest(aiDataService, result.get(0));
-                    Toast.makeText(this, result.get(0), Toast.LENGTH_SHORT).show();
-                }
-                break;
-            }
-        }
     }
 
     @Override
@@ -308,6 +290,45 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View, 
     @Override
     public void showCurrentLocation() {
         toggleGps(true);
+    }
+
+    @Override
+    public void announceResponse(String responseText) {
+        tts.speak(responseText, TextToSpeech.QUEUE_FLUSH, null, null);
+        presenter.ttsEnabled = false; // disable TTS after we announced response
+    }
+
+    // Will fire after text is interpreted from the microphone
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case SPEECH_INPUT_CODE: {
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList<String> result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    presenter.ttsEnabled = true;
+                    presenter.sendQueryRequest(aiDataService, result.get(0));
+                }
+                break;
+            }
+        }
+    }
+
+    private void beginListening() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.ask_me));
+        try {
+            startActivityForResult(intent, SPEECH_INPUT_CODE);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getApplicationContext(),
+                    R.string.speech_not_supported,
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void toggleGps(boolean enableGps) {
@@ -388,6 +409,14 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View, 
     protected void onStop() {
         super.onStop();
         mapView.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Shut down TTS
+        tts.stop();
+        tts.shutdown();
     }
 
     @Override

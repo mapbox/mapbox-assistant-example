@@ -1,6 +1,7 @@
 package com.mapbox.mapboxintegratedassistant;
 
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.gson.JsonElement;
@@ -39,6 +40,7 @@ import retrofit2.Response;
 public class MiaPresenter implements MiaContract.Presenter {
 
     private static final String LOG_TAG = MiaPresenter.class.getSimpleName();
+    boolean ttsEnabled;
 
     private MiaContract.View view;
     private ArrayList<ChatObject> chatObjects;
@@ -64,13 +66,8 @@ public class MiaPresenter implements MiaContract.Presenter {
         view.scrollChatDown();
     }
 
-    /**
-     * Used to send requests to API.AI
-     * Can come from either search box or microphone
-     * @param queryText - text entered or interpreted
-     */
     @Override
-    public void sendQueryRequest(AIDataService service, String queryText) {
+    public void sendQueryRequest(AIDataService service, @NonNull String queryText) {
         // Add an input object to show the query in the chat
         InputObject input = new InputObject();
         input.setText(queryText);
@@ -82,25 +79,18 @@ public class MiaPresenter implements MiaContract.Presenter {
         new ChatRequest(service, this).execute(request);
     }
 
-    /**
-     * Called after async task to API.AI is done executing and
-     * we have a response from their service
-     * @param responseText - text to be displayed in the chat view
-     */
     @Override
     public void onQueryResponseReceived(String responseText) {
         // Add an response object to the chat
         BotResponse response = new BotResponse();
         response.setText(responseText);
         addChatObject(response);
+
+        if (ttsEnabled) {
+            view.announceResponse(responseText);
+        }
     }
 
-    /**
-     * Use this to call Mapbox geocoder to resolve a String place to given coordinates
-     * from the return Position object
-     * @param location - String location of type place
-     * @param entity - For now, to decide whether to populate origin or destination
-     */
     @Override
     public void setMapPositionFromLocation(final String location, final String entity) {
         try {
@@ -163,10 +153,6 @@ public class MiaPresenter implements MiaContract.Presenter {
         }
     }
 
-    /**
-     * Called when we receive a complete show.route.origin.destination action
-     * @param result - extract the Strings origin and destination from Result
-     */
     @Override
     public void drawRouteOriginDestination(Result result) {
         // Hide the chat layout - done talking to the bot at this point
@@ -193,6 +179,13 @@ public class MiaPresenter implements MiaContract.Presenter {
                 }
             }
         }
+    }
+
+    @Override
+    public void showCurrentLocation() {
+        // Hide the chat layout
+        view.hideChatLayoutWithDelay(1500);
+        view.showCurrentLocation();
     }
 
     private void getRoute(Position origin, Position destination) throws ServicesException {
@@ -255,12 +248,5 @@ public class MiaPresenter implements MiaContract.Presenter {
                 .add(points)
                 .color(Color.parseColor("#009688"))
                 .width(5));
-    }
-
-    @Override
-    public void showCurrentLocation() {
-        // Hide the chat layout
-        view.hideChatLayoutWithDelay(1500);
-        view.showCurrentLocation();
     }
 }
