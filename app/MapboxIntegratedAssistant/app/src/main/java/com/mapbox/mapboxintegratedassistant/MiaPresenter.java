@@ -133,14 +133,13 @@ public class MiaPresenter implements MiaContract.Presenter {
                             case MiaConstants.ENTITY_DESTINATION:
                                 destination = position;
                                 break;
-                            default:
-                                break;
                         }
 
                         // Once we have both origin and destination, draw the route
                         if (origin != null && destination != null) {
                             try {
                                 getRoute(origin, destination);
+                                view.animateToRouteBounds(origin, destination);
                             } catch (ServicesException e) {
                                 e.printStackTrace();
                             }
@@ -170,6 +169,15 @@ public class MiaPresenter implements MiaContract.Presenter {
      */
     @Override
     public void drawRouteOriginDestination(Result result) {
+        // TODO - Might be a better place to do this
+        // Hide the chat layout - done talking to the bot at this point
+        view.hideChatLayout();
+
+        // Clear current route data / map annotations
+        origin = null;
+        destination = null;
+        view.clearMap();
+
         final HashMap<String, JsonElement> params = result.getParameters();
         if (params != null && !params.isEmpty()) {
             for (final Map.Entry<String, JsonElement> entry : params.entrySet()) {
@@ -183,15 +191,9 @@ public class MiaPresenter implements MiaContract.Presenter {
                         setMapPositionFromLocation(entry.getValue().toString(),
                                 MiaConstants.ENTITY_DESTINATION);
                         break;
-                    default:
-                        break;
                 }
             }
         }
-        // TODO - Might be a better place to do this
-        // Hide the chat layout and keyboard - done talking to the bot at this point
-        view.hideChatLayout();
-        view.hideSoftKeyboard();
     }
 
     private void getRoute(Position origin, Position destination) throws ServicesException {
@@ -254,5 +256,10 @@ public class MiaPresenter implements MiaContract.Presenter {
                 .add(points)
                 .color(Color.parseColor("#009688"))
                 .width(5));
+    }
+
+    @Override
+    public void showCurrentLocation() {
+        view.showCurrentLocation();
     }
 }

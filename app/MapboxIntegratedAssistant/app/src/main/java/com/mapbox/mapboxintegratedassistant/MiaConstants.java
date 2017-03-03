@@ -8,6 +8,7 @@ public class MiaConstants {
 
     // Different actions
     public static final String ACTION_SHOW_ROUTE_OD = "show.route.origin.destination";
+    public static final String ACTION_SHOW_CURRENT_LOCATION = "show.current.location";
 
     // Different entities
     public static final String ENTITY_ORIGIN = "origin";

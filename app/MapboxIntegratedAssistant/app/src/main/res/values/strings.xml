@@ -7,4 +7,5 @@
     <string name="speech_not_supported">I\'m sorry, speech is not supported.</string>
     <string name="ask_me">Ask me something.</string>
     <string name="mia_greeting">Hi, I\'m Mapbox\'s assistant! How can I help you?</string>
+    <string name="mic_button">microphone button</string>
 </resources>

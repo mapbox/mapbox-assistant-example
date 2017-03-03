@@ -3,6 +3,7 @@ package com.mapbox.mapboxintegratedassistant;
 import com.mapbox.mapboxintegratedassistant.model.ChatObject;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
+import com.mapbox.services.commons.models.Position;
 
 import ai.api.AIDataService;
 import ai.api.model.Result;
@@ -32,6 +33,21 @@ interface MiaContract {
          * Will scroll chat to bottom if it currently is not
          */
         void scrollChatDown();
+
+        /**
+         * Called to animate the map to the route the user requested
+         * @param origin - Position origin object
+         * @param destination - Position destination
+         */
+        void animateToRouteBounds(Position origin, Position destination);
+
+        /**
+         * Clears the map off all annotations
+         * Called before we draw a new route
+         */
+        void clearMap();
+
+        void showCurrentLocation();
     }
 
     interface Presenter {
@@ -47,5 +63,7 @@ interface MiaContract {
         void drawRouteOriginDestination(Result result);
 
         void addChatObject(ChatObject object);
+
+        void showCurrentLocation();
     }
 }

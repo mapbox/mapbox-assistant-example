@@ -47,6 +47,9 @@ public class ChatRequest extends AsyncTask<AIRequest, Void, AIResponse> {
                     case MiaConstants.ACTION_SHOW_ROUTE_OD:
                         presenter.drawRouteOriginDestination(result);
                         break;
+                    case MiaConstants.ACTION_SHOW_CURRENT_LOCATION:
+                        presenter.showCurrentLocation();
+                        break;
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.mapbox.mapboxintegratedassistant;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -26,9 +29,13 @@ import com.mapbox.mapboxintegratedassistant.view.ChatAdapter;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.services.commons.models.Position;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -68,9 +75,10 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
                 map = mapboxMap;
-                showMapReadyToast();
             }
         });
+
+
 
         // Set up connection with API.AI
         setupAIConfiguration();
@@ -93,7 +101,7 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                chatLayout.setVisibility(View.VISIBLE);
+                revealChatLayout();
                 searchBtn.hide();
             }
         });
@@ -101,9 +109,7 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
         clearChatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                chatLayout.setVisibility(View.GONE);
-                hideSoftKeyboard();
-                searchBtn.show();
+                hideChatLayout();
             }
         });
         ImageView micBtn = (ImageView) findViewById(R.id.iv_microphone);
@@ -143,8 +149,105 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
         }
     };
 
-    private void showMapReadyToast() {
-        Toast.makeText(this, "Map is ready!", Toast.LENGTH_SHORT).show();
+    private void revealChatLayout() {
+        // Get the center for the clipping circle
+        int cx = chatLayout.getWidth() / 2;
+        int cy = chatLayout.getHeight() / 2;
+
+        // Get the final radius for the clipping circle
+        float finalRadius = (float) Math.hypot(cx, cy);
+
+        // Create the animator for this view (the start radius is zero)
+        Animator anim =
+                ViewAnimationUtils.createCircularReveal(chatLayout, cx, cy, 0, finalRadius);
+
+        // Make the view visible and start the animation
+        chatLayout.setVisibility(View.VISIBLE);
+        anim.start();
+
+        // Scroll the chat so the keyboard doesn't hide any messages
+        scrollChatDown();
+    }
+
+    @Override
+    public void hideChatLayout() {
+        // Get the center for the clipping circle
+        int cx = chatLayout.getWidth() / 2;
+        int cy = chatLayout.getHeight() / 2;
+
+        // Get the initial radius for the clipping circle
+        float initialRadius = (float) Math.hypot(cx, cy);
+
+        // Create the animation (the final radius is zero)
+        final Animator anim =
+                ViewAnimationUtils.createCircularReveal(chatLayout, cx, cy, initialRadius, 0);
+
+        // Make the view invisible when the animation is done
+        anim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                chatLayout.setVisibility(View.INVISIBLE);
+                // Hide the keyboard if visible and show the search button again
+                hideSoftKeyboard();
+                searchBtn.show();
+            }
+        });
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                chatLayout.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Start the animation
+                        anim.start();
+                    }
+                }, 1500);
+            }
+        });
+    }
+
+    @Override
+    public void clearMap() {
+        if (map.getAnnotations().size() > 0) {
+            map.clear();
+        }
+    }
+
+    @Override
+    public void animateToRouteBounds(Position origin, Position destination) {
+
+        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                .include(new LatLng(origin.getLatitude(), origin.getLongitude())) // Origin
+                .include(new LatLng(destination.getLatitude(), destination.getLongitude())) // Destination
+                .build();
+
+        map.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 200), 3500);
+    }
+
+    @Override
+    public void showCurrentLocation() {
+
+//        // If we have the last location of the user, we can move the camera to that position.
+//        Location lastLocation = locationServices.getLastLocation();
+//        if (lastLocation != null) {
+//            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastLocation), 16));
+//        }
+//
+//        locationServices.addLocationListener(new LocationListener() {
+//            @Override
+//            public void onLocationChanged(Location location) {
+//                if (location != null) {
+//                    // Move the map camera to where the user location is and then remove the
+//                    // listener so the camera isn't constantly updating when the user location
+//                    // changes. When the user disables and then enables the location again, this
+//                    // listener is registered again and will adjust the camera once again.
+//                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location), 16));
+//                    locationServices.removeLocationListener(this);
+//                }
+//            }
+//        });
     }
 
     private void beginListening() {
@@ -164,19 +267,13 @@ public class MiaActivity extends AppCompatActivity implements MiaContract.View {
 
     @Override
     public void hideSoftKeyboard() {
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(chatLayout.getWindowToken(), 0);
     }
 
     @Override
     public void scrollChatDown() {
         chatList.scrollToPosition(chatAdapter.getItemCount() - 1);
-    }
-
-    @Override
-    public void hideChatLayout() {
-        chatLayout.setVisibility(View.GONE);
-        searchBtn.show();
     }
 
     // Will fire after text is interpreted from the microphone
