@@ -2,7 +2,7 @@
 
 A skill for Amazon Echo to interact with Mapbox services.
 
-[![image](https://cloud.githubusercontent.com/assets/6964/22553109/896dcce6-e929-11e6-9b12-def4f5343395.png)](https://www.youtube.com/watch?v=dljDVTtMDTo)
+[![image](https://cloud.githubusercontent.com/assets/6964/26731813/423b47d2-4783-11e7-963b-6a46b3529ef2.png)](https://vimeo.com/220016659)
 
 ### Examples
 
