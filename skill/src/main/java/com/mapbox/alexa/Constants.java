@@ -7,8 +7,7 @@ public class Constants {
 
     public static final String APPLICATION_ID = "amzn1.ask.skill.5cdf87b1-c593-4e94-ba41-f30bd99777ba";
 
-    public static final String MAPBOX_ACCESS_TOKEN =
-            "pk.eyJ1IjoienVnYWxkaWEiLCJhIjoiY2l5bmNpZTg3MDAxMzN1cGZvenBhdHplMyJ9.Lrv_IZGFXTee8X0w03L23g";
+    public static final String MAPBOX_ACCESS_TOKEN = "YOUR_TOKEN_GOES_HERE";
 
     // Intents
     public static final String INTENT_HELLO = "HelloIntent";
