@@ -2,9 +2,7 @@ package com.mapbox.alexa;
 
 import com.amazon.speech.slu.Slot;
 import com.amazon.speech.speechlet.SpeechletResponse;
-import com.amazon.speech.ui.PlainTextOutputSpeech;
-import com.amazon.speech.ui.Reprompt;
-import com.amazon.speech.ui.SimpleCard;
+import com.amazon.speech.ui.*;
 import com.mapbox.services.api.directions.v5.DirectionsCriteria;
 import com.mapbox.services.api.directions.v5.MapboxDirections;
 import com.mapbox.services.api.directions.v5.models.DirectionsResponse;
@@ -36,10 +34,16 @@ public class IntentManager {
     public SpeechletResponse getWelcomeResponse() {
         String speechText = "Welcome to the Mapbox skill, feel free to ask for help.";
 
-        // Create the simple card content
-        SimpleCard card = new SimpleCard();
+        // Create a standard card content
+        StandardCard card = new StandardCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(speechText);
+        card.setText(speechText);
+
+        // Card image
+        Image image = new Image();
+        image.setSmallImageUrl(ImageComponent.getWelcomeMap(true));
+        image.setLargeImageUrl(ImageComponent.getWelcomeMap(false));
+        card.setImage(image);
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -55,10 +59,16 @@ public class IntentManager {
     public SpeechletResponse getHelpResponse() {
         String speechText = "You can ask for directions, commuting time, interesting places nearby, or even news.";
 
-        // Create the simple card content
-        SimpleCard card = new SimpleCard();
+        // Create a standard card content
+        StandardCard card = new StandardCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(speechText);
+        card.setText(speechText);
+
+        // Card image
+        Image image = new Image();
+        image.setSmallImageUrl(ImageComponent.getWelcomeMap(true));
+        image.setLargeImageUrl(ImageComponent.getWelcomeMap(false));
+        card.setImage(image);
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -74,10 +84,16 @@ public class IntentManager {
     public SpeechletResponse getHelloResponse() {
         String speechText = "Hey, this is Mapbox, how can I help you?";
 
-        // Create the simple card content
-        SimpleCard card = new SimpleCard();
+        // Create a standard card content
+        StandardCard card = new StandardCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(speechText);
+        card.setText(speechText);
+
+        // Card image
+        Image image = new Image();
+        image.setSmallImageUrl(ImageComponent.getWelcomeMap(true));
+        image.setLargeImageUrl(ImageComponent.getWelcomeMap(false));
+        card.setImage(image);
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -89,6 +105,7 @@ public class IntentManager {
     public SpeechletResponse getHomeAddressResponse(Slot postalAddress, Slot city) {
         String speechText;
         String cardText;
+        Image image = null;
 
         String address = AddressUtils.getAddressFromSlot(postalAddress, city, null);
 
@@ -97,15 +114,23 @@ public class IntentManager {
             storageManager.setHomeAddress(position);
             speechText = "Thank you, home address set.";
             cardText = String.format(Locale.US, "Thank you, home address set: %s", address);
+            image = new Image();
+            image.setSmallImageUrl(ImageComponent.getLocationMap(position, true));
+            image.setLargeImageUrl(ImageComponent.getLocationMap(position, false));
         } catch (Exception e) {
             speechText = "Sorry, I couldn't find that address.";
             cardText = String.format(Locale.US, "Sorry, I couldn't find that address: %s", address);
         }
 
-        // Create the simple card content
-        SimpleCard card = new SimpleCard();
+        // Create a standard card content
+        StandardCard card = new StandardCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(cardText);
+        card.setText(cardText);
+
+        // Card image
+        if (image != null) {
+            card.setImage(image);
+        }
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -117,6 +142,7 @@ public class IntentManager {
     public SpeechletResponse getOfficeAddressResponse(Slot postalAddress, Slot city) {
         String speechText;
         String cardText;
+        Image image = null;
 
         String address = AddressUtils.getAddressFromSlot(postalAddress, city, null);
 
@@ -126,15 +152,23 @@ public class IntentManager {
             storageManager.setOfficeAddress(position);
             cardText = String.format(Locale.US, "Thank you, office address set: %s", address);
             speechText = "Thank you, office address set.";
+            image = new Image();
+            image.setSmallImageUrl(ImageComponent.getLocationMap(position, true));
+            image.setLargeImageUrl(ImageComponent.getLocationMap(position, false));
         } catch (Exception e) {
             cardText = String.format(Locale.US, "Sorry, I couldn't find that address: %s", address);
             speechText = "Sorry, I couldn't find that address.";
         }
 
-        // Create the simple card content
-        SimpleCard card = new SimpleCard();
+        // Create a standard card content
+        StandardCard card = new StandardCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(cardText);
+        card.setText(cardText);
+
+        // Card image
+        if (image != null) {
+            card.setImage(image);
+        }
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -145,6 +179,7 @@ public class IntentManager {
 
     public SpeechletResponse getCommuteResponse() {
         String speechText;
+        Image image = null;
 
         Position origin = storageManager.getHomeAddress();
         Position destination = storageManager.getOfficeAddress();
@@ -159,6 +194,7 @@ public class IntentManager {
                         .setOrigin(origin)
                         .setDestination(destination)
                         .setProfile(DirectionsCriteria.PROFILE_DRIVING_TRAFFIC)
+                        .setGeometry(DirectionsCriteria.GEOMETRY_POLYLINE)
                         .build();
                 Response<DirectionsResponse> response = client.executeCall();
 
@@ -168,6 +204,10 @@ public class IntentManager {
                     double duration = response.body().getRoutes().get(0).getDuration() / 60; // min
                     speechText = String.format(Locale.US,
                             "Your commute is %.0f kilometers long, a %.0f minutes drive with current traffic.", distance, duration);
+                    image = new Image();
+                    String geometry = response.body().getRoutes().get(0).getGeometry();
+                    image.setSmallImageUrl(ImageComponent.getRouteMap(origin, destination, geometry, true));
+                    image.setLargeImageUrl(ImageComponent.getRouteMap(origin, destination, geometry, false));
                 } catch (Exception e) {
                     speechText = "Sorry, I couldn't find directions from your place to the office.";
                     log.error("Route failed.", e);
@@ -178,10 +218,15 @@ public class IntentManager {
             }
         }
 
-        // Create the simple card content
-        SimpleCard card = new SimpleCard();
+        // Create a standard card content
+        StandardCard card = new StandardCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(speechText);
+        card.setText(speechText);
+
+        // Card image
+        if (image != null) {
+            card.setImage(image);
+        }
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -192,6 +237,7 @@ public class IntentManager {
 
     public SpeechletResponse getDirectionsResponse(Slot postalAddress, Slot city, Slot landmark) {
         String speechText;
+        Image image = null;
 
         Position origin = storageManager.getHomeAddress();
         if (origin == null) {
@@ -206,6 +252,7 @@ public class IntentManager {
                         .setOrigin(origin)
                         .setDestination(position)
                         .setProfile(DirectionsCriteria.PROFILE_DRIVING_TRAFFIC)
+                        .setGeometry(DirectionsCriteria.GEOMETRY_POLYLINE)
                         .build();
                 Response<DirectionsResponse> response = client.executeCall();
 
@@ -215,6 +262,10 @@ public class IntentManager {
                     double duration = response.body().getRoutes().get(0).getDuration() / 60; // min
                     speechText = String.format(Locale.US,
                             "That address is a %.0f kilometers drive, %.0f minutes with current traffic.", distance, duration);
+                    image = new Image();
+                    String geometry = response.body().getRoutes().get(0).getGeometry();
+                    image.setSmallImageUrl(ImageComponent.getRouteMap(origin, position, geometry, true));
+                    image.setLargeImageUrl(ImageComponent.getRouteMap(origin, position, geometry, false));
                 } catch (Exception e) {
                     speechText = "Sorry, I couldn't find directions from your location to that address.";
                     log.error("Route failed.", e);
@@ -225,10 +276,15 @@ public class IntentManager {
             }
         }
 
-        // Create the simple card content
-        SimpleCard card = new SimpleCard();
+        // Create a standard card content
+        StandardCard card = new StandardCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(speechText);
+        card.setText(speechText);
+
+        // Card image
+        if (image != null) {
+            card.setImage(image);
+        }
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -239,6 +295,7 @@ public class IntentManager {
 
     public SpeechletResponse getPlacesResponse() {
         String speechText;
+        Image image = null;
 
         Position origin = storageManager.getHomeAddress();
         if (origin == null) {
@@ -256,6 +313,10 @@ public class IntentManager {
 
                 try {
                     speechText = String.format("Have you tried %s?", response.body().getFeatures().get(0).getPlaceName());
+                    Position position = response.body().getFeatures().get(0).asPosition();
+                    image = new Image();
+                    image.setSmallImageUrl(ImageComponent.getLocationMap(position, true));
+                    image.setLargeImageUrl(ImageComponent.getLocationMap(position, false));
                 } catch (Exception e) {
                     speechText = "Sorry, I couldn't find any interesting places nearby.";
                 }
@@ -265,10 +326,15 @@ public class IntentManager {
             }
         }
 
-        // Create the simple card content
-        SimpleCard card = new SimpleCard();
+        // Create a standard card content
+        StandardCard card = new StandardCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(speechText);
+        card.setText(speechText);
+
+        // Card image
+        if (image != null) {
+            card.setImage(image);
+        }
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -281,10 +347,16 @@ public class IntentManager {
         BlogComponent blogComponent = new BlogComponent();
         String speechText = blogComponent.lastWeek(false);
 
-        // Create the simple card content
-        SimpleCard card = new SimpleCard();
+        // Create a standard card content
+        StandardCard card = new StandardCard();
         card.setTitle(CARD_TITLE);
-        card.setContent(speechText);
+        card.setText(speechText);
+
+        // Card image
+        Image image = new Image();
+        image.setSmallImageUrl("https://cdn-images-1.medium.com/max/1900/1*w7UyBTg5rlFzxsCEYzsNeA@2x.png");
+        image.setLargeImageUrl("https://cdn-images-1.medium.com/max/1900/1*w7UyBTg5rlFzxsCEYzsNeA@2x.png");
+        card.setImage(image);
 
         // Create the plain text output
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();

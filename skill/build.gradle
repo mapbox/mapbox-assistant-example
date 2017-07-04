@@ -7,7 +7,6 @@ sourceCompatibility = 1.7
 
 repositories {
     mavenCentral()
-    maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 dependencies {
@@ -17,7 +16,7 @@ dependencies {
     compile ('com.amazonaws:aws-lambda-java-log4j:1.0.0')
 
     // Alexa skills kit
-    compile ('com.amazon.alexa:alexa-skills-kit:1.2')
+    compile ('com.amazon.alexa:alexa-skills-kit:1.4.0')
 
     // Logging
     compile 'log4j:log4j:1.2.17'
@@ -25,7 +24,7 @@ dependencies {
     compile 'org.slf4j:slf4j-log4j12:1.7.0'
 
     // MAS
-    compile ('com.mapbox.mapboxsdk:mapbox-java-services:2.0.0-SNAPSHOT@jar') {
+    compile ('com.mapbox.mapboxsdk:mapbox-java-services:2.1.3@jar') {
         transitive=true
     }
 
