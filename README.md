@@ -46,3 +46,49 @@ Read the latest post on the blog:
 * Build the `.zip` deployment package: `make build`.
 * Output is in `skill/build/distributions/alexa-skill-0.1.zip`.
 * Upload to AWS Lambda.
+
+# Mapbox Conversation Action for the Google Assistant
+
+A Conversation Action for Google Assistant users using API.AI to interact with Mapbox services.
+
+[![Google Home](https://coedmagazine.files.wordpress.com/2016/10/google-home-lead.jpg?quality=88&w=750)](https://youtu.be/4cLFgJPnlz4)
+
+### Examples
+
+Get a route:
+
+* You: `Hey Google! Mapbox.`
+* Google Home: `Hi! I'm your Mapbox assistant. What can I do for you today?`
+* You: `I'd like to go from Valencia to Barcelona.`
+* Google Home: `The route from Valencia to Barcelona is 350756.4 meters long and it will take you around 197.88 minutes.`
+
+### Dependencies
+
+* [Mapbox Directions API](https://www.mapbox.com/api-documentation/#directions)
+* [Mapbox Geocoding API](https://www.mapbox.com/api-documentation/#geocoding)
+* [API.AI](https://api.ai/)
+* The Conversation Action (`mapboxAssistant.js`) runs on AWS Lambda.
+
+### Build your own Conversation Action
+
+- API.AI
+
+1) Create Your Conversational AI Assistant
+
+2) Create A User Intent
+
+- Amazon AWS
+
+3) Create an Amazon IAM User
+
+4) Create A Lambda Function
+
+5) Code Your Lambda Function (e.g. `mapboxAssistant.js`)
+
+6) Create an Endpoint in API Gateway
+
+- API.AI
+
+7) Use Your New API for Intent Fulfillment
+
+8) Test On The Google Home
