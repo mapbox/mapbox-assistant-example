@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MapboxIntegratedAssistant</string>
+    <string name="clear_chat_button">Clear chat button</string>
+    <string name="ask_a_question">Ask a question</string>
+    <string name="placeholder_response_text">Placeholder response text</string>
+    <string name="placeholder_input_text">Placeholder input text</string>
+    <string name="speech_not_supported">I\'m sorry, speech is not supported.</string>
+    <string name="ask_me">Ask me something.</string>
+    <string name="mia_greeting">Hi, I\'m Mapbox\'s assistant! How can I help you?</string>
+    <string name="mic_button">microphone button</string>
+</resources>
